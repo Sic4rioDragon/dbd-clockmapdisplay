@@ -1,0 +1,21 @@
+{
+  "tesseract_path": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+  "capture_region": {
+    "left": 123,
+    "top": 1181,
+    "width": 1277,
+    "height": 50
+  },
+  "poll_interval_ms": 700,
+  "min_confidence": 72,
+  "http_host": "127.0.0.1",
+  "http_port": 8765,
+  "output_json": "../output/current_map.json",
+  "overlay_dir": "../overlay",
+  "maps_dir": "../assets/maps",
+  "clear_after_seconds": 20,
+  "save_debug_images": true,
+  "debug_dir": "../output/debug",
+  "status_text": "DBD map OCR running - waiting for map",
+  "max_history": 15
+}

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DBD Map Overlay</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #map {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+      margin: 0 auto;
+    }
+
+    #status {
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      color: white;
+      font-size: 28px;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+
+    #label {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      color: white;
+      font-size: 28px;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #history {
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      width: 420px;
+      max-height: calc(100% - 48px);
+      overflow: auto;
+      color: white;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-sizing: border-box;
+    }
+
+    #history h3 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+    }
+
+    .entry {
+      font-size: 18px;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <img id="map" src="" alt="">
+    <div id="status">Starting...</div>
+    <div id="label"></div>
+    <div id="history">
+      <h3>History</h3>
+      <div id="historyList">No detections yet.</div>
+    </div>
+  </div>
+
+  <script>
+    const mapImg = document.getElementById("map");
+    const label = document.getElementById("label");
+    const statusEl = document.getElementById("status");
+    const historyList = document.getElementById("historyList");
+    let lastUpdatedAt = 0;
+
+    function formatTime(ts) {
+      return new Date(ts * 1000).toLocaleTimeString();
+    }
+
+    function renderHistory(history) {
+      if (!history || !history.length) {
+        historyList.innerHTML = "No detections yet.";
+        return;
+      }
+
+      historyList.innerHTML = history.map(item => {
+        const when = formatTime(item.time);
+        if (item.type === "match") {
+          return `<div class="entry">[${when}] ${item.map_name} (${item.score})<br>${item.raw_text || ""}</div>`;
+        }
+        if (item.type === "clear") {
+          return `<div class="entry">[${when}] Cleared overlay</div>`;
+        }
+        return `<div class="entry">[${when}] ${item.type}</div>`;
+      }).join("");
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch("/current_map.json?t=" + Date.now(), { cache: "no-store" });
+        const data = await res.json();
+
+        statusEl.textContent = data.status || "Running...";
+        renderHistory(data.history || []);
+
+        if (!data.image_url) {
+          mapImg.style.display = "none";
+          label.style.display = "none";
+          return;
+        }
+
+        if (data.updated_at !== lastUpdatedAt) {
+          mapImg.src = data.image_url + "?t=" + data.updated_at;
+          label.textContent = data.map_name || "";
+          lastUpdatedAt = data.updated_at;
+        }
+
+        mapImg.style.display = "block";
+        label.style.display = data.map_name ? "block" : "none";
+      } catch (e) {
+        statusEl.textContent = "Overlay fetch error";
+      }
+    }
+
+    setInterval(refresh, 800);
+    refresh();
+  </script>
+</body>
+</html>
