@@ -1,34 +1,17 @@
 {
-  "status": "Waiting for map",
-  "map_name": "Mount Ormond Resort I",
+  "status": "Loading detected - checking map",
+  "map_name": null,
   "raw_text": "",
   "score": 0,
-  "source_name": "tab_map_name",
-  "image_url": "http://127.0.0.1:8765/maps/mount-ormond-resort-i.webp",
-  "history": [
-    {
-      "time": 1776935615,
-      "type": "match",
-      "source_name": "tab_map_name",
-      "raw_text": "ORMOND MOUNT ORMOND RESORT",
-      "map_name": "Mount Ormond Resort I",
-      "score": 95.0
-    },
-    {
-      "time": 1776935520,
-      "type": "clear",
-      "raw_text": "",
-      "map_name": null,
-      "score": 0
-    },
-    {
-      "time": 1776935498,
-      "type": "match",
-      "source_name": "tab_map_name",
-      "raw_text": "WITHERED ISLE GREENVILLE SQUARE",
-      "map_name": "Greenville Square",
-      "score": 95
-    }
-  ],
-  "updated_at": 1776935622
+  "source_name": null,
+  "image_url": null,
+  "history": [],
+  "automation": {
+    "mode": "loading",
+    "loading_bar_detected": true,
+    "loading_bar_dark_count": 6,
+    "continue_detected": false,
+    "loading_armed": true
+  },
+  "updated_at": 1776942685
 }

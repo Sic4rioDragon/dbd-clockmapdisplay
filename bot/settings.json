@@ -3,23 +3,52 @@
 
   "capture_regions": {
     "loading_strip": {
-      "left": 560,
-      "top": 1000,
-      "width": 560,
-      "height": 52
-    },
+    "left": 35,
+    "top": 850,
+    "width": 620,
+    "height": 120
+  },
     "tab_map_name": {
       "left": 700,
       "top": 875,
       "width": 520,
       "height": 40
+    },
+    "continue_button": {
+      "left": 1480,
+      "top": 990,
+      "width": 300,
+      "height": 90
     }
   },
 
+  "mode": "testing",
+  "clear_after_seconds_testing": 20,
+  "clear_after_seconds_normal": 300,
+
+  "idle_poll_ms": 700,
+  "loading_ocr_poll_ms": 200,
+
+  "black_bar_sample_points": [
+    [20, 8],
+    [80, 8],
+    [140, 8],
+    [200, 8],
+    [260, 8],
+    [320, 8]
+  ],
+  "black_bar_brightness_threshold": 32,
+  "black_bar_required_dark_points": 5,
+  
+  "loading_arm_timeout_ms": 20000,
+  "loading_post_bar_grace_ms": 3500,
+  
   "poll_interval_ms": 1800,
   "min_confidence": 80,
   "min_text_length": 8,
   "required_confirmations": 2,
+
+  "post_detect_cooldown_ms": 2000,
 
   "http_host": "127.0.0.1",
   "http_port": 8765,

@@ -11,6 +11,25 @@
       margin: 20px;
     }
     h1 { margin-top: 0; }
+    .topbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    button {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 0;
+      cursor: pointer;
+    }
+    .pill {
+      background: #1b1b1b;
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -26,19 +45,30 @@
       border: 1px solid #333;
       background: #000;
     }
-    .mono {
-      font-family: Consolas, monospace;
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: #0d0d0d;
-      padding: 10px;
-      border-radius: 8px;
+    .history-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid #2a2a2a;
     }
   </style>
 </head>
 <body>
   <h1>DBD OCR Debug</h1>
-  <p>Refresh after pressing F8 in-game.</p>
+
+  <div class="topbar">
+    <button id="checkBtn">Check map</button>
+    <div class="pill" id="sourceInfo">Source: none</div>
+    <div class="pill" id="autoInfo">Mode: idle • Bar: no • Continue: no</div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h2>History</h2>
+    <div id="historyList">No detections yet.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h2>full screen raw</h2>
+    <img src="/debug/full_raw.png?t=" id="fullraw">
+  </div>
 
   <div class="grid">
     <div class="card">
@@ -58,16 +88,99 @@
       <h2>tab_map_name ocr</h2>
       <img src="/debug/tab_map_name_ocr.png?t=" id="tmocr">
     </div>
+
+    <div class="card">
+      <h2>continue_button raw</h2>
+      <img src="/debug/continue_button_raw.png?t=" id="craw">
+    </div>
+    <div class="card">
+      <h2>continue_button ocr</h2>
+      <img src="/debug/continue_button_ocr.png?t=" id="cocr">
+    </div>
+
+    <div class="card">
+      <h2>loading_bar_probe raw</h2>
+      <img src="/debug/loading_bar_probe_raw.png?t=" id="lbraw">
+    </div>
   </div>
 
   <script>
-    setInterval(() => {
+    const sourceInfo = document.getElementById("sourceInfo");
+    const autoInfo = document.getElementById("autoInfo");
+    const historyList = document.getElementById("historyList");
+    const checkBtn = document.getElementById("checkBtn");
+
+    const sourceNames = {
+      tab_map_name: "tab/details text",
+      loading_strip: "loading banner"
+    };
+
+    function yesNo(v) {
+      return v ? "yes" : "no";
+    }
+
+    function formatTime(ts) {
+      return new Date(ts * 1000).toLocaleTimeString();
+    }
+
+    function renderHistory(history) {
+      if (!history || !history.length) {
+        historyList.innerHTML = "No detections yet.";
+        return;
+      }
+
+      historyList.innerHTML = history.map(item => {
+        const when = formatTime(item.time);
+        const src = item.source_name ? (sourceNames[item.source_name] || item.source_name) : "unknown";
+        if (item.type === "match") {
+          return `<div class="history-entry">[${when}] ${src} → <strong>${item.map_name}</strong> (${Math.round(item.score)})<br>${item.raw_text || ""}</div>`;
+        }
+        if (item.type === "clear") {
+          return `<div class="history-entry">[${when}] cleared overlay</div>`;
+        }
+        return `<div class="history-entry">[${when}] ${item.type}</div>`;
+      }).join("");
+    }
+
+    async function refreshJson() {
+      try {
+        const res = await fetch("/current_map.json?t=" + Date.now(), { cache: "no-store" });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const auto = data.automation || {};
+
+        sourceInfo.textContent = data.source_name
+          ? `Source: ${sourceNames[data.source_name] || data.source_name}`
+          : "Source: none";
+
+        autoInfo.textContent =
+          `Mode: ${auto.mode || "idle"} • Bar: ${yesNo(auto.loading_bar_detected)} • Continue: ${yesNo(auto.continue_detected)}`;
+
+        renderHistory(data.history || []);
+      } catch {}
+    }
+
+    function refreshImages() {
       const t = Date.now();
-      for (const id of ["lsraw","lsocr","tmraw","tmocr"]) {
+      for (const id of ["fullraw","lsraw","lsocr","tmraw","tmocr","craw","cocr","lbraw"]) {
         const img = document.getElementById(id);
         img.src = img.src.split("?")[0] + "?t=" + t;
       }
-    }, 1500);
+    }
+
+    checkBtn.addEventListener("click", async () => {
+      await fetch("/force_check?t=" + Date.now(), { cache: "no-store" });
+      setTimeout(refreshJson, 150);
+    });
+
+    setInterval(() => {
+      refreshJson();
+      refreshImages();
+    }, 1000);
+
+    refreshJson();
+    refreshImages();
   </script>
 </body>
 </html>

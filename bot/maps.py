@@ -75,6 +75,9 @@ MAP_SLUGS = {
 KNOWN_MAPS = list(MAP_SLUGS.keys())
 
 ALIASES = {
+    "BADHAM PRESCHOOL I": "Badham Preschool I",
+    "BADHAM PRESCHOOL 1": "Badham Preschool I",
+    "BADHAM PRESCHOOL": "Badham Preschool I",
     "TOBA LANDING": "Toba Landing",
     "DVARKA DEEPWOOD TOBA LANDING": "Toba Landing",
     "DVARKA DEEPWOOD TOBALANDING": "Toba Landing",
