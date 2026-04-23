@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DBD OCR Debug</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 20px;
+    }
+    h1 { margin-top: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: #1b1b1b;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    img {
+      max-width: 100%;
+      border: 1px solid #333;
+      background: #000;
+    }
+    .mono {
+      font-family: Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0d0d0d;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>DBD OCR Debug</h1>
+  <p>Refresh after pressing F8 in-game.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>loading_strip raw</h2>
+      <img src="/debug/loading_strip_raw.png?t=" id="lsraw">
+    </div>
+    <div class="card">
+      <h2>loading_strip ocr</h2>
+      <img src="/debug/loading_strip_ocr.png?t=" id="lsocr">
+    </div>
+
+    <div class="card">
+      <h2>tab_map_name raw</h2>
+      <img src="/debug/tab_map_name_raw.png?t=" id="tmraw">
+    </div>
+    <div class="card">
+      <h2>tab_map_name ocr</h2>
+      <img src="/debug/tab_map_name_ocr.png?t=" id="tmocr">
+    </div>
+  </div>
+
+  <script>
+    setInterval(() => {
+      const t = Date.now();
+      for (const id of ["lsraw","lsocr","tmraw","tmocr"]) {
+        const img = document.getElementById(id);
+        img.src = img.src.split("?")[0] + "?t=" + t;
+      }
+    }, 1500);
+  </script>
+</body>
+</html>

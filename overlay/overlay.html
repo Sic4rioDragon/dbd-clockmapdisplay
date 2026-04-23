@@ -4,6 +4,20 @@
   <meta charset="utf-8">
   <title>DBD Map Overlay</title>
   <style>
+    :root {
+      --panel-bg: rgba(10, 12, 16, 0.78);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f5f7;
+      --muted: #b6bec8;
+      --accent: #8ea2ff;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -12,18 +26,24 @@
       background: transparent;
       overflow: hidden;
       font-family: Arial, sans-serif;
-    }
-
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: var(--text);
     }
 
     #wrap {
       position: relative;
       width: 100%;
       height: 100%;
+      padding: 18px;
+    }
+
+    #mapLayer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 70px 250px 70px 250px;
+      pointer-events: none;
     }
 
     #map {
@@ -31,79 +51,215 @@
       max-height: 100%;
       object-fit: contain;
       display: none;
-      margin: 0 auto;
+      filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.35));
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    #topLeft {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: fit-content;
+      max-width: 500px;
+    }
+
+    #controlsPanel {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    #checkBtn {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #d7dbe3;
+      color: #11161d;
+      transition: transform 0.08s ease, opacity 0.15s ease;
+    }
+
+    #checkBtn:hover {
+      opacity: 0.95;
+    }
+
+    #checkBtn:active {
+      transform: translateY(1px);
+    }
+
+    #sourceInfo {
+      font-size: 14px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    #statusPanel {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      width: 520px;
+      max-width: calc(100% - 36px);
+      padding: 14px 16px;
+    }
+
+    #statusTitle {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
 
     #status {
-      position: absolute;
-      left: 24px;
-      top: 24px;
-      color: white;
-      font-size: 28px;
-      text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
-      background: rgba(0, 0, 0, 0.45);
-      padding: 10px 14px;
-      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
     }
 
-    #label {
+    #historyPanel {
       position: absolute;
-      left: 24px;
-      bottom: 24px;
-      color: white;
-      font-size: 28px;
-      text-shadow: 0 0 8px rgba(0, 0, 0, 0.85);
-      background: rgba(0, 0, 0, 0.35);
-      padding: 10px 14px;
-      border-radius: 10px;
-      display: none;
+      right: 18px;
+      bottom: 18px;
+      width: 360px;
+      max-height: 320px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    #history {
-      position: absolute;
-      right: 24px;
-      top: 24px;
-      width: 420px;
-      max-height: calc(100% - 48px);
+    #historyHeader {
+      padding: 14px 16px 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    #historyTitle {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    #historySub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    #historyList {
+      padding: 10px 12px 12px 12px;
       overflow: auto;
-      color: white;
-      background: rgba(0, 0, 0, 0.45);
-      border-radius: 10px;
-      padding: 12px 14px;
-      box-sizing: border-box;
-    }
-
-    #history h3 {
-      margin: 0 0 10px 0;
-      font-size: 22px;
     }
 
     .entry {
-      font-size: 18px;
-      line-height: 1.35;
+      padding: 10px 10px 11px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
       margin-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-      padding-bottom: 6px;
+    }
+
+    .entry:last-child {
+      margin-bottom: 0;
+    }
+
+    .entryTop {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .entryMain {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .entryRaw {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #d6dde6;
+      opacity: 0.92;
+      word-break: break-word;
+    }
+
+    .emptyState {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 4px 2px;
+    }
+
+    @media (max-width: 1100px) {
+      #historyPanel {
+        width: 300px;
+      }
+
+      #mapLayer {
+        padding-right: 220px;
+      }
+
+      #statusPanel {
+        width: 430px;
+      }
     }
   </style>
 </head>
 <body>
   <div id="wrap">
-    <img id="map" src="" alt="">
-    <div id="status">Starting...</div>
-    <div id="label"></div>
-    <div id="history">
-      <h3>History</h3>
-      <div id="historyList">No detections yet.</div>
+    <div id="mapLayer">
+      <img id="map" src="" alt="">
+    </div>
+
+    <div id="topLeft">
+      <div id="controlsPanel" class="panel">
+        <button id="checkBtn">Check map</button>
+        <span id="sourceInfo">No source yet</span>
+      </div>
+    </div>
+
+    <div id="statusPanel" class="panel">
+      <div id="statusTitle">Status</div>
+      <div id="status">Starting…</div>
+    </div>
+
+    <div id="historyPanel" class="panel">
+      <div id="historyHeader">
+        <h2 id="historyTitle">History</h2>
+        <div id="historySub">Recent detections</div>
+      </div>
+      <div id="historyList">
+        <div class="emptyState">No detections yet.</div>
+      </div>
     </div>
   </div>
 
   <script>
     const mapImg = document.getElementById("map");
-    const label = document.getElementById("label");
     const statusEl = document.getElementById("status");
     const historyList = document.getElementById("historyList");
+    const sourceInfo = document.getElementById("sourceInfo");
+    const checkBtn = document.getElementById("checkBtn");
+
     let lastUpdatedAt = 0;
+
+    const sourceNames = {
+      tab_map_name: "Source: tab/details text",
+      loading_strip: "Source: loading banner"
+    };
 
     function formatTime(ts) {
       return new Date(ts * 1000).toLocaleTimeString();
@@ -111,50 +267,82 @@
 
     function renderHistory(history) {
       if (!history || !history.length) {
-        historyList.innerHTML = "No detections yet.";
+        historyList.innerHTML = `<div class="emptyState">No detections yet.</div>`;
         return;
       }
 
       historyList.innerHTML = history.map(item => {
         const when = formatTime(item.time);
+        const src = item.source_name ? (sourceNames[item.source_name] || item.source_name) : "Unknown source";
+
         if (item.type === "match") {
-          return `<div class="entry">[${when}] ${item.map_name} (${item.score})<br>${item.raw_text || ""}</div>`;
+          return `
+            <div class="entry">
+              <div class="entryTop">${when} • ${src}</div>
+              <div class="entryMain">${item.map_name} <span style="color:#9fb0ff;">(${Math.round(item.score)})</span></div>
+              ${item.raw_text ? `<div class="entryRaw">${item.raw_text}</div>` : ""}
+            </div>
+          `;
         }
+
         if (item.type === "clear") {
-          return `<div class="entry">[${when}] Cleared overlay</div>`;
+          return `
+            <div class="entry">
+              <div class="entryTop">${when}</div>
+              <div class="entryMain">Cleared overlay</div>
+            </div>
+          `;
         }
-        return `<div class="entry">[${when}] ${item.type}</div>`;
+
+        return `
+          <div class="entry">
+            <div class="entryTop">${when}</div>
+            <div class="entryMain">${item.type}</div>
+          </div>
+        `;
       }).join("");
     }
 
     async function refresh() {
       try {
         const res = await fetch("/current_map.json?t=" + Date.now(), { cache: "no-store" });
+        if (!res.ok) throw new Error("current_map.json not reachable");
+
         const data = await res.json();
 
         statusEl.textContent = data.status || "Running...";
+        sourceInfo.textContent = data.source_name
+          ? (sourceNames[data.source_name] || `Source: ${data.source_name}`)
+          : "No source yet";
+
         renderHistory(data.history || []);
 
         if (!data.image_url) {
           mapImg.style.display = "none";
-          label.style.display = "none";
           return;
         }
 
         if (data.updated_at !== lastUpdatedAt) {
           mapImg.src = data.image_url + "?t=" + data.updated_at;
-          label.textContent = data.map_name || "";
           lastUpdatedAt = data.updated_at;
         }
 
         mapImg.style.display = "block";
-        label.style.display = data.map_name ? "block" : "none";
       } catch (e) {
-        statusEl.textContent = "Overlay fetch error";
+        statusEl.textContent = "Overlay fetch error: " + e.message;
       }
     }
 
-    setInterval(refresh, 800);
+    checkBtn.addEventListener("click", async () => {
+      try {
+        await fetch("/force_check?t=" + Date.now(), { cache: "no-store" });
+        statusEl.textContent = "Manual check requested";
+      } catch (e) {
+        statusEl.textContent = "Manual check failed";
+      }
+    });
+
+    setInterval(refresh, 1000);
     refresh();
   </script>
 </body>
