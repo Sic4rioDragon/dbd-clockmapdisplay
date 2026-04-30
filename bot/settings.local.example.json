@@ -1,0 +1,7 @@
+{
+  "publish": {
+  "enabled": false,
+  "api_base_url": "https://dbdmap-api.....",
+  "update_token": ""
+}
+}

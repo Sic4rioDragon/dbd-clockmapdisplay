@@ -91,11 +91,15 @@ def strip_realm_prefixes(cleaned: str) -> str:
     return text
 
 
-def preprocess_for_ocr(img: Image.Image) -> Image.Image:
+def preprocess_for_ocr(img: Image.Image, source_name: str, settings: dict) -> Image.Image:
+    cfg = settings.get("preprocess", {}).get(source_name, {})
+    scale = int(cfg.get("scale", 4))
+    threshold = int(cfg.get("threshold", 185))
+
     img = img.convert("L")
     img = ImageOps.autocontrast(img)
-    img = img.resize((img.width * 4, img.height * 4), Image.Resampling.LANCZOS)
-    img = img.point(lambda p: 0 if p < 185 else 255)
+    img = img.resize((img.width * scale, img.height * scale), Image.Resampling.LANCZOS)
+    img = img.point(lambda p: 0 if p < threshold else 255)
     return img
 
 
@@ -133,6 +137,10 @@ def likely_useful_text(cleaned: str, min_text_length: int) -> bool:
 def best_match(raw_text: str, min_text_length: int):
     cleaned = normalize_roman_ocr(raw_text)
     cleaned = strip_realm_prefixes(cleaned)
+
+    compact_preview = re.sub(r"[^A-Z0-9]", "", cleaned)
+    if compact_preview.startswith("RACCOONCITYPOLICESTA") and "EAST" not in compact_preview and "WEST" not in compact_preview:
+        return None, 0, cleaned
 
     if not likely_useful_text(cleaned, min_text_length):
         return None, 0, cleaned
@@ -180,7 +188,7 @@ def best_match(raw_text: str, min_text_length: int):
 def run_region_ocr(sct: mss.mss, settings: dict, source_name: str):
     region = settings["capture_regions"][source_name]
     raw_img = capture_region(sct, region)
-    ocr_img = preprocess_for_ocr(raw_img)
+    ocr_img = preprocess_for_ocr(raw_img, source_name, settings)
 
     raw_text = pytesseract.image_to_string(
         ocr_img,
@@ -189,7 +197,7 @@ def run_region_ocr(sct: mss.mss, settings: dict, source_name: str):
 
     matched, score, cleaned = best_match(
         raw_text=raw_text,
-        min_text_length=settings["min_text_length"]
+        min_text_length=settings["matching"]["min_text_length"]
     )
 
     return {

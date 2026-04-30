@@ -5,32 +5,33 @@ from pathlib import Path
 BOT_DIR = Path(__file__).resolve().parent
 
 
-DEFAULTS = {
-    "poll_interval_ms": 1800,
-    "min_confidence": 88,
-    "min_text_length": 6,
-    "required_confirmations": 2,
-    "http_host": "127.0.0.1",
-    "http_port": 8765,
-    "clear_after_seconds": 20,
-    "save_debug_images": True,
-    "debug_dir": "../output/debug",
-    "status_text": "DBD map OCR running - waiting for map",
-    "max_history": 15,
-    "manual_hotkey": "F8",
-}
+def deep_update(base: dict, override: dict) -> dict:
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deep_update(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+
+def load_json(path: Path) -> dict:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def load_settings():
-    path = BOT_DIR / "settings.json"
-    with open(path, "r", encoding="utf-8") as f:
-        settings = json.load(f)
+    base_path = BOT_DIR / "settings.json"
+    local_path = BOT_DIR / "settings.local.json"
 
-    merged = {**DEFAULTS, **settings}
+    settings = load_json(base_path)
 
-    merged["output_json"] = (BOT_DIR / merged["output_json"]).resolve()
-    merged["overlay_dir"] = (BOT_DIR / merged["overlay_dir"]).resolve()
-    merged["maps_dir"] = (BOT_DIR / merged["maps_dir"]).resolve()
-    merged["debug_dir"] = (BOT_DIR / merged["debug_dir"]).resolve()
+    if local_path.exists():
+        local_settings = load_json(local_path)
+        settings = deep_update(settings, local_settings)
 
-    return merged
+    settings["paths"]["output_json"] = (BOT_DIR / settings["paths"]["output_json"]).resolve()
+    settings["paths"]["overlay_dir"] = (BOT_DIR / settings["paths"]["overlay_dir"]).resolve()
+    settings["paths"]["maps_dir"] = (BOT_DIR / settings["paths"]["maps_dir"]).resolve()
+    settings["paths"]["debug_dir"] = (BOT_DIR / settings["paths"]["debug_dir"]).resolve()
+
+    return settings

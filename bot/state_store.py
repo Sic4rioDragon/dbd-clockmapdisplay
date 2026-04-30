@@ -31,10 +31,9 @@ def write_state(path: Path, state: dict, retries: int = 8, delay: float = 0.03):
 
     data = json.dumps(state, indent=2)
     tmp_path = path.with_suffix(".tmp")
-
     last_error = None
 
-    for attempt in range(retries):
+    for _ in range(retries):
         try:
             with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(data)
@@ -43,24 +42,14 @@ def write_state(path: Path, state: dict, retries: int = 8, delay: float = 0.03):
 
             os.replace(tmp_path, path)
             return
-        except PermissionError as e:
-            last_error = e
-            time.sleep(delay)
-        except OSError as e:
+        except (PermissionError, OSError) as e:
             last_error = e
             time.sleep(delay)
 
-    # fallback: try writing directly if atomic replace keeps getting blocked
-    try:
-        with open(path, "w", encoding="utf-8", newline="\n") as f:
-            f.write(data)
-            f.flush()
-            os.fsync(f.fileno())
-        return
-    except Exception as e:
-        last_error = e
-
-    raise last_error
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
 
 
 def append_history(history, entry, max_history):

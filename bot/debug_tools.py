@@ -16,7 +16,7 @@ def save_latest(debug_dir: Path, results, full_img=None, extra_images=None):
     ensure_debug_dirs(debug_dir)
 
     if full_img is not None:
-      full_img.save(debug_dir / "full_raw.png")
+        full_img.save(debug_dir / "full_raw.png")
 
     for result in results:
         result["raw_img"].save(debug_dir / f"{result['source_name']}_raw.png")
@@ -30,7 +30,10 @@ def save_latest(debug_dir: Path, results, full_img=None, extra_images=None):
                 pair["ocr_img"].save(debug_dir / f"{name}_ocr.png")
 
 
-def archive_attempt(debug_dir: Path, prefix: str, results, extra_data: dict, full_img=None, extra_images=None):
+def archive_attempt(debug_dir: Path, prefix: str, results, extra_data: dict, full_img=None, extra_images=None, enabled=True):
+    if not enabled:
+        return None
+
     ensure_debug_dirs(debug_dir)
 
     folder = debug_dir / "archive" / timestamp_folder_name(prefix)

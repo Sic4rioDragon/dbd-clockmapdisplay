@@ -23,7 +23,7 @@ def pretty_source_name(source_name: str | None) -> str:
 
 
 def pretty_status_waiting() -> str:
-    return "Waiting for map"
+    return "Waiting for next map"
 
 
 def pretty_status_manual() -> str:
@@ -42,50 +42,23 @@ def pretty_status_detected(map_name, source_name) -> str:
     return f"Detected from {pretty_source_name(source_name)}: {map_name}"
 
 
-def pretty_status_match_end() -> str:
-    return "Match end detected"
-
-
-def automation_state(loading_mode, loading_bar, continue_check, armed):
+def automation_state(loading_mode, loading_bar, armed):
     return {
         "mode": "loading" if loading_mode else "idle",
         "loading_bar_detected": bool(loading_bar["matched"]),
         "loading_bar_dark_count": int(loading_bar.get("dark_count", 0)),
-        "continue_detected": bool(continue_check["matched"]),
         "loading_armed": bool(armed),
     }
 
 
-def sanitize_continue_check_for_json(continue_check):
-    if not continue_check:
-        return None
-
-    return {
-        "raw_text": continue_check.get("raw_text", ""),
-        "cleaned": continue_check.get("cleaned", ""),
-        "matched": bool(continue_check.get("matched", False)),
-    }
-
-
-def sanitize_loading_bar_for_json(loading_bar):
-    if not loading_bar:
-        return None
-
-    return {
-        "matched": bool(loading_bar.get("matched", False)),
-        "dark_count": int(loading_bar.get("dark_count", 0)),
-        "sampled": loading_bar.get("sampled", []),
-    }
-
-
-def archive_failed_attempt(settings, reason, candidate_result, results_snapshot, full_img, continue_check, loading_bar):
+def archive_failed_attempt(settings, reason, candidate_result, results_snapshot, full_img, loading_bar):
     if not candidate_result or not results_snapshot or full_img is None:
         return
 
     print(f"[LOAD] {reason}: {candidate_result['cleaned']} -> {candidate_result['matched']} ({candidate_result['score']})")
 
     archive_attempt(
-        settings["debug_dir"],
+        settings["paths"]["debug_dir"],
         f"failed_{reason}",
         results_snapshot,
         {
@@ -97,49 +70,57 @@ def archive_failed_attempt(settings, reason, candidate_result, results_snapshot,
                 "matched": candidate_result["matched"],
                 "score": candidate_result["score"],
             },
-            "loading_bar_probe": sanitize_loading_bar_for_json(loading_bar),
-            "continue_button": sanitize_continue_check_for_json(continue_check),
+            "loading_bar_probe": {
+                "matched": bool(loading_bar.get("matched", False)),
+                "dark_count": int(loading_bar.get("dark_count", 0)),
+                "sampled": loading_bar.get("sampled", []),
+            },
         },
         full_img=full_img,
         extra_images={
-            "continue_button": continue_check or {},
             "loading_bar_probe": {
-                "raw_img": loading_bar.get("raw_img") if loading_bar else None,
+                "raw_img": loading_bar.get("raw_img"),
                 "ocr_img": None,
             },
         },
+        enabled=settings["debug"]["enabled"],
     )
 
 
-def handle_manual_check(settings, results, continue_check, loading_bar, full_img):
+def handle_manual_check(settings, results, loading_bar, full_img):
+    any_useful = False
+
     for r in results:
         if not r["cleaned"]:
-            print(f"[CHECK] {r['source_name']}: no text")
-        elif r["matched"] and r["score"] >= settings["min_confidence"]:
+            continue
+
+        any_useful = True
+        if r["matched"] and r["score"] >= settings["matching"]["min_confidence"]:
             print(f"[CHECK] {r['source_name']}: '{r['cleaned']}' -> {r['matched']} ({r['score']})")
         else:
             print(f"[CHECK] {r['source_name']}: '{r['cleaned']}' -> no valid match ({r['score']})")
 
-    if continue_check["matched"]:
-        print(f"[CHECK] continue_button: '{continue_check['cleaned']}' -> CONTINUE")
-    else:
-        print(f"[CHECK] continue_button: '{continue_check['cleaned'] or 'no text'}' -> no match")
+    if not any_useful:
+        print("[CHECK] No useful text found.")
 
     archive_attempt(
-        settings["debug_dir"],
+        settings["paths"]["debug_dir"],
         "manual",
         results,
         {
             "results": make_attempt_summary(results),
-            "continue_button": sanitize_continue_check_for_json(continue_check),
-            "loading_bar_probe": sanitize_loading_bar_for_json(loading_bar),
+            "loading_bar_probe": {
+                "matched": loading_bar["matched"],
+                "dark_count": loading_bar["dark_count"],
+                "sampled": loading_bar["sampled"],
+            },
         },
         full_img=full_img,
         extra_images={
-            "continue_button": continue_check,
             "loading_bar_probe": {
                 "raw_img": loading_bar["raw_img"],
                 "ocr_img": None,
             },
         },
+        enabled=settings["debug"]["enabled"],
     )

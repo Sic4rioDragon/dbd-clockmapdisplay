@@ -57,7 +57,7 @@
   <div class="topbar">
     <button id="checkBtn">Check map</button>
     <div class="pill" id="sourceInfo">Source: none</div>
-    <div class="pill" id="autoInfo">Mode: idle • Bar: no • Continue: no</div>
+    <div class="pill" id="autoInfo">Mode: idle • Bar: no</div>
   </div>
 
   <div class="card" style="margin-bottom:20px;">
@@ -87,15 +87,6 @@
     <div class="card">
       <h2>tab_map_name ocr</h2>
       <img src="/debug/tab_map_name_ocr.png?t=" id="tmocr">
-    </div>
-
-    <div class="card">
-      <h2>continue_button raw</h2>
-      <img src="/debug/continue_button_raw.png?t=" id="craw">
-    </div>
-    <div class="card">
-      <h2>continue_button ocr</h2>
-      <img src="/debug/continue_button_ocr.png?t=" id="cocr">
     </div>
 
     <div class="card">
@@ -135,9 +126,6 @@
         if (item.type === "match") {
           return `<div class="history-entry">[${when}] ${src} → <strong>${item.map_name}</strong> (${Math.round(item.score)})<br>${item.raw_text || ""}</div>`;
         }
-        if (item.type === "clear") {
-          return `<div class="history-entry">[${when}] cleared overlay</div>`;
-        }
         return `<div class="history-entry">[${when}] ${item.type}</div>`;
       }).join("");
     }
@@ -155,7 +143,7 @@
           : "Source: none";
 
         autoInfo.textContent =
-          `Mode: ${auto.mode || "idle"} • Bar: ${yesNo(auto.loading_bar_detected)} • Continue: ${yesNo(auto.continue_detected)}`;
+          `Mode: ${auto.mode || "idle"} • Bar: ${yesNo(auto.loading_bar_detected)}`;
 
         renderHistory(data.history || []);
       } catch {}
@@ -163,7 +151,7 @@
 
     function refreshImages() {
       const t = Date.now();
-      for (const id of ["fullraw","lsraw","lsocr","tmraw","tmocr","craw","cocr","lbraw"]) {
+      for (const id of ["fullraw", "lsraw", "lsocr", "tmraw", "tmocr", "lbraw"]) {
         const img = document.getElementById(id);
         img.src = img.src.split("?")[0] + "?t=" + t;
       }

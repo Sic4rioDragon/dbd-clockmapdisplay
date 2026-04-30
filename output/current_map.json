@@ -1,17 +1,137 @@
 {
   "status": "Loading detected - checking map",
-  "map_name": null,
+  "map_name": "Coal Tower I",
   "raw_text": "",
   "score": 0,
-  "source_name": null,
-  "image_url": null,
-  "history": [],
+  "source_name": "loading_strip",
+  "image_url": "http://127.0.0.1:8765/maps/coal-tower-i.webp",
+  "history": [
+    {
+      "time": 1777509609,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "S T RA RT N C F I I TEMS I",
+      "map_name": "Coal Tower I",
+      "score": 85.5
+    },
+    {
+      "time": 1777509161,
+      "type": "match",
+      "source_name": "tab_map_name",
+      "raw_text": "II SIA PEKEES EO EEE",
+      "map_name": "Coal Tower II",
+      "score": 85.5
+    },
+    {
+      "time": 1777508319,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "DISTURBEDWARD",
+      "map_name": "Disturbed Ward",
+      "score": 100
+    },
+    {
+      "time": 1777507929,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "MIDWICHELEMENTARYSCF",
+      "map_name": "Midwich Elementary School",
+      "score": 84.44444444444444
+    },
+    {
+      "time": 1777507415,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "MOTHERSDWELLING",
+      "map_name": "Mother's Dwelling",
+      "score": 100
+    },
+    {
+      "time": 1777506802,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "GRIMPANTRY",
+      "map_name": "Grim Pantry",
+      "score": 100
+    },
+    {
+      "time": 1777505280,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "ORMONDLAKEMINE",
+      "map_name": "Ormond Lake Mine",
+      "score": 86.66666666666667
+    },
+    {
+      "time": 1777504261,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "GASFEAVEN",
+      "map_name": "Gas Heaven",
+      "score": 84.21052631578947
+    },
+    {
+      "time": 1777503453,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "BADRAMPRESCHOOL",
+      "map_name": "Badham Preschool I",
+      "score": 84.84848484848484
+    },
+    {
+      "time": 1777503130,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "RANCIDABATTOIR",
+      "map_name": "Rancid Abattoir",
+      "score": 100
+    },
+    {
+      "time": 1777502635,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "TAESHATTEREDSQUARE",
+      "map_name": "Shattered Square",
+      "score": 95
+    },
+    {
+      "time": 1777502104,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "FORGOTTENRUINS",
+      "map_name": "Forgotten Ruins",
+      "score": 100
+    },
+    {
+      "time": 1777501282,
+      "type": "match",
+      "source_name": "tab_map_name",
+      "raw_text": "BACKWATER WIACAB AA PANTRY",
+      "map_name": "Grim Pantry",
+      "score": 85.5
+    },
+    {
+      "time": 1777501079,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "GRIM PANTRY",
+      "map_name": "Grim Pantry",
+      "score": 100
+    },
+    {
+      "time": 1777500557,
+      "type": "match",
+      "source_name": "loading_strip",
+      "raw_text": "GREENVILLESQUARE",
+      "map_name": "Greenville Square",
+      "score": 100
+    }
+  ],
   "automation": {
     "mode": "loading",
-    "loading_bar_detected": true,
-    "loading_bar_dark_count": 6,
-    "continue_detected": false,
+    "loading_bar_detected": false,
+    "loading_bar_dark_count": 4,
     "loading_armed": true
   },
-  "updated_at": 1776942685
+  "updated_at": 1777510433
 }

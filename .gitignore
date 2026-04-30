@@ -1,3 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local output / runtime
+output/
+bot/__pycache__/
+overlay/__pycache__/
+
+# Debug archives
+output/debug/
+!output/debug/.gitkeep
+
+# Local generated state
+output/current_map.json
+
+# Packs / exports
 *.zip
-/output/
-/bot/__pycache__
+
+# OS / editor junk
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+
+bot/settings.local.json
+bot/match_state.py
